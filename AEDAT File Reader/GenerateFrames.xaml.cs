@@ -64,6 +64,7 @@ namespace AEDAT_File_Reader
         {
             EventColor onColor;
             EventColor offColor;
+	    EventColor bothColor;
             int frameTime;
             int maxFrames;
 
@@ -71,7 +72,7 @@ namespace AEDAT_File_Reader
             {
                 // Grab video reconstruction settings from GUI
                 // Will throw a FormatException if input is invalid (negative numbers or input has letters)
-                (frameTime, maxFrames, onColor, offColor) = ParseFrameSettings();
+                (frameTime, maxFrames, onColor, offColor, bothColor) = ParseFrameSettings();
             }
             catch (FormatException)
             {
@@ -134,12 +135,12 @@ namespace AEDAT_File_Reader
 
 				if (playbackType.IsOn)
 				{
-					await TimeBasedReconstruction(aedatFile, cam, onColor, offColor, frameTime, maxFrames, folder2, file.Name.Replace(".aedat", ""));
+					await TimeBasedReconstruction(aedatFile, cam, onColor, offColor, bothColor, frameTime, maxFrames, folder2, file.Name.Replace(".aedat", ""));
 				}
 				else
 				{
 					int numOfEvents = Int32.Parse(numOfEventInput.Text);
-					await EventBasedReconstruction(aedatFile, cam, onColor, offColor, numOfEvents, maxFrames, folder2, file.Name.Replace(".aedat", ""));
+					await EventBasedReconstruction(aedatFile, cam, onColor, offColor, bothColor, numOfEvents, maxFrames, folder2, file.Name.Replace(".aedat", ""));
 				}
 			}
             showLoading.IsActive = false;
@@ -154,7 +155,7 @@ namespace AEDAT_File_Reader
             return pixelStream;
         }
 
-        public async Task TimeBasedReconstruction(Stream aedatFile, CameraParameters cam, EventColor onColor, EventColor offColor, int frameTime, int maxFrames, StorageFolder folder,string fileName)
+        public async Task TimeBasedReconstruction(Stream aedatFile, CameraParameters cam, EventColor onColor, EventColor offColor, EventColor bothColor, int frameTime, int maxFrames, StorageFolder folder,string fileName)
         {
 			byte[] aedatBytes = new byte[5 * Convert.ToInt32(Math.Pow(10, 8))]; // Read 0.5 GB at a time
 			int lastTime = -999999;
@@ -224,7 +225,7 @@ namespace AEDAT_File_Reader
 			}
         }
 
-        public async Task EventBasedReconstruction(Stream aedatFile, CameraParameters cam, EventColor onColor, EventColor offColor, int eventsPerFrame, int maxFrames, StorageFolder folder, string fileName)
+        public async Task EventBasedReconstruction(Stream aedatFile, CameraParameters cam, EventColor onColor, EventColor offColor, EventColor bothColor, int eventsPerFrame, int maxFrames, StorageFolder folder, string fileName)
         {
 			byte[] aedatBytes = new byte[5 * Convert.ToInt32(Math.Pow(10, 8))]; // Read 0.5 GB at a time
 			int frameCount = 0;
@@ -280,7 +281,7 @@ namespace AEDAT_File_Reader
             return;
         }
 
-        private (int, int, EventColor, EventColor) ParseFrameSettings()
+        private (int, int, EventColor, EventColor, EventColor) ParseFrameSettings()
         {
             int frameTime = 33333;  // The amount of time per frame in uS (30 fps = 33333)
             int maxFrames;          // Max number of frames in the reconstructed video
@@ -301,6 +302,7 @@ namespace AEDAT_File_Reader
             // Grab ON and OFF colors from comboBox
             EventColor onColor = onColorCombo.SelectedItem as EventColor;
             EventColor offColor = offColorCombo.SelectedItem as EventColor;
+	    EventColor bothColor = bothColorCombo.SelectedItem as EventColor;
 
             return (frameTime, maxFrames, onColor, offColor);
         }
@@ -324,6 +326,7 @@ namespace AEDAT_File_Reader
         {
             onColorCombo.SelectedIndex = 0;
             offColorCombo.SelectedIndex = 1;
+	    bothColorCombo.SelectedIndex = 2;
         }
 
        
