@@ -169,7 +169,7 @@ namespace AEDAT_File_Reader
 			await bulkExportComplete.ShowAsync();
 		}
 
-		private async Task SaveAsCSV(List<AEDATEvent> data,StorageFile saveFile, bool includeCords, bool onOffType, bool pixelNumber)
+		private async Task SaveAsCSV(List<AEDATEvent> data,StorageFile saveFile, bool includeCords, int onOffType, bool pixelNumber)
         {
             if (saveFile == null) return;
 
@@ -181,7 +181,7 @@ namespace AEDAT_File_Reader
                 {
                     using (var dataWriter = new Windows.Storage.Streams.DataWriter(outputStream))
                     {
-                        Func<bool, string> formatOnOff;
+                        Func<int, string> formatOnOff;
                         Func<int, int, string> formatCoords;
 
                         // Determine which columns are included in the CSV
@@ -189,27 +189,37 @@ namespace AEDAT_File_Reader
                         {
 							if (pixelNumber)
 							{
-								dataWriter.WriteString("On/Off,PixelNumber,Timestamp\n");
+								dataWriter.WriteString("On/Off/Both,PixelNumber,Timestamp\n");
 								formatCoords = (x, y) => ((currentCamera.cameraX * (y - 1)) + (x - 1)).ToString() + ","; 
 							}
 							else
 							{
-								dataWriter.WriteString("On/Off,X,Y,Timestamp\n");
+								dataWriter.WriteString("On/Off/Both,X,Y,Timestamp\n");
 								formatCoords = (x, y) => x.ToString() + "," + y.ToString() + ",";
 							}
                             
                         }
                         else
                         {
-                            dataWriter.WriteString("On/Off,Timestamp\n");
+                            dataWriter.WriteString("On/Off/Both,Timestamp\n");
                             formatCoords = (x, y) => "";
                         }
 
                         // Determine if events are represented by booleans or integers
-                        if (!onOffType)
-                            formatOnOff = b => b.ToString() + ",";
-                        else
-                            formatOnOff = b => b == true ? "1," : "-1,";
+                         //if (!onOffType)
+                        //    formatOnOff = b => b.ToString() + ",";
+                      //  else
+                     //       formatOnOff = b => b == true ? "1," : "-1,";
+
+			//Not sure if this will work, plan is to treat On/Off the same and change slightly for if Both event
+   			if(onOffType = 0)
+      				formatOnOff = b => b.ToString() + ",";
+	  		else if (onOffType = 1)
+     				formattOnOff = b => b == true ? "1," : "-1"; 
+	 		else
+    				formatOnOff = b => b == true ? "1," : "0" : "-1";
+			
+
 
                         // Write to the CSV file
                         foreach (AEDATEvent item in data)
