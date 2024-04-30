@@ -1,4 +1,4 @@
-﻿<Page
+﻿<Window
     x:Class="AEDAT_File_Reader.EventChunks"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,17 +6,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Width="250" 
+    Height="250">
 
 
-	<Page.Resources>
+	<Window.Resources>
 		<DataTemplate x:Key="colorCombo" x:DataType="local:EventColor">
 			<StackPanel Orientation="Vertical" >
 				<TextBlock Text="{x:Bind Name}"/>
 
 			</StackPanel>
 		</DataTemplate>
-	</Page.Resources>
+	</Window.Resources>
 
 
 	<Grid>
@@ -98,4 +100,4 @@
 			</Grid>
 		</Grid>
 	</Grid>
-</Page>
+</Window>
