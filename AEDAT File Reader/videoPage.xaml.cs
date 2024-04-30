@@ -84,6 +84,7 @@ namespace AEDAT_File_Reader
 		{
 			EventColor onColor;
 			EventColor offColor;
+   			EventColor bothColor;
 			int frameTime;
 			int maxFrames;
 			float fps;
@@ -92,7 +93,7 @@ namespace AEDAT_File_Reader
 			{
 				// Grab video reconstruction settings from GUI
 				// Will throw a FormatException if input is invalid (negative numbers or input has letters)
-				(frameTime, maxFrames, onColor, offColor, fps) = ParseVideoSettings();
+				(frameTime, maxFrames, onColor, offColor, bothColor, fps) = ParseVideoSettings();
 			}
 			catch (FormatException)
 			{
@@ -130,12 +131,12 @@ namespace AEDAT_File_Reader
 			MediaComposition composition;
 			if (playbackType.IsOn)
 			{
-				composition = await TimeBasedReconstruction(aedatFile, cam, onColor, offColor, frameTime, maxFrames, playback_frametime);
+				composition = await TimeBasedReconstruction(aedatFile, cam, onColor, offColor, bothColor, frameTime, maxFrames, playback_frametime);
 			}
 			else
 			{
 				int numOfEvents = Int32.Parse(numOfEventInput.Text);
-				composition = await EventBasedReconstruction(aedatFile, cam, onColor, offColor, numOfEvents, maxFrames, playback_frametime);
+				composition = await EventBasedReconstruction(aedatFile, cam, onColor, offColor, bothColor, numOfEvents, maxFrames, playback_frametime);
 			}
 			SaveCompositionToFile(composition, file.DisplayName, cam.cameraX, cam.cameraY);
 		}
@@ -167,7 +168,7 @@ namespace AEDAT_File_Reader
 				{
 					AEDATEvent currentEvent = new AEDATEvent(aedatBytes, i, cam);
 
-					AedatUtilities.SetPixel(ref currentFrame, currentEvent.x, currentEvent.y, (currentEvent.onOff ? onColor.Color : offColor.Color), cam.cameraX);
+					AedatUtilities.SetPixel(ref currentFrame, currentEvent.x, currentEvent.y, (currentEvent.onOff ? onColor.Color : offColor.Color : bothColor.Color), cam.cameraX);
 					timeStamp = currentEvent.time;
 
 					if (lastTime == -999999)
@@ -208,7 +209,7 @@ namespace AEDAT_File_Reader
 			return composition;
 		}
 
-		public async Task<MediaComposition> EventBasedReconstruction(Stream aedatFile, CameraParameters cam, EventColor onColor, EventColor offColor, int eventsPerFrame, int maxFrames, float playback_frametime)
+		public async Task<MediaComposition> EventBasedReconstruction(Stream aedatFile, CameraParameters cam, EventColor onColor, EventColor offColor, EventColor bothColor, int eventsPerFrame, int maxFrames, float playback_frametime)
 		{
 			byte[] aedatBytes = new byte[5 * Convert.ToInt32(Math.Pow(10, 8))]; // Read 0.5 GB at a time
 			MediaComposition composition = new MediaComposition();
@@ -226,7 +227,7 @@ namespace AEDAT_File_Reader
 				{
 					AEDATEvent currentEvent = new AEDATEvent(aedatBytes, i, cam);
 
-					AedatUtilities.SetPixel(ref currentFrame, currentEvent.x, currentEvent.y, (currentEvent.onOff ? onColor.Color : offColor.Color), cam.cameraX);
+					AedatUtilities.SetPixel(ref currentFrame, currentEvent.x, currentEvent.y, (currentEvent.onOff ? onColor.Color : offColor.Color : bothColor.Color), cam.cameraX);
 
 					eventCount++;
 					if (eventCount >= eventsPerFrame) // Collected events within specified timeframe, add frame to video
@@ -310,7 +311,7 @@ namespace AEDAT_File_Reader
 			});
 		}
 
-		private (int, int, EventColor, EventColor, float) ParseVideoSettings()
+		private (int, int, EventColor, EventColor, EventColor, float) ParseVideoSettings()
 		{
 			int frameTime = 33333;  // The amount of time per frame in uS (30 fps = 33333)
 			int maxFrames;          // Max number of frames in the reconstructed video
@@ -344,6 +345,7 @@ namespace AEDAT_File_Reader
 			// Grab ON and OFF colors from comboBox
 			EventColor onColor = onColorCombo.SelectedItem as EventColor;
 			EventColor offColor = offColorCombo.SelectedItem as EventColor;
+   			EventColor bothColor = bothColorCombo.SelectedItem as EventColor;
 
 			if (onColor.Name == "Custom")
 			{
@@ -356,8 +358,13 @@ namespace AEDAT_File_Reader
 				// use color picker
 				// offColor.Color = colorPicker Color
 			}
+   			if (bothColor.Name == "Custom")
+      			{
+				//use color picker
+    				//bothColor.Color = colorPicker Color
+      			}
 
-			return (frameTime, maxFrames, onColor, offColor, fps);
+			return (frameTime, maxFrames, onColor, offColor, bothColor, fps);
 		}
 
 		private void AllFrameCheckBox_Checked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
@@ -379,6 +386,7 @@ namespace AEDAT_File_Reader
 		{
 			onColorCombo.SelectedIndex = 0;
 			offColorCombo.SelectedIndex = 1;
+   			bothColorCombo.SelectedIndex = 2;
 		}
 
 		private void RealTimeCheckbox_Checked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
