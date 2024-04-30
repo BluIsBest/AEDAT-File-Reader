@@ -47,7 +47,7 @@
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="*"/>
 			</Grid.RowDefinitions>
-			<ProgressRing IsActive="False" Grid.ColumnSpan="10"  Grid.RowSpan="10" x:Name="showLoading" Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center"  Canvas.ZIndex="10000"/>
+			<ProgressRing IsActive="False" Grid.ColumnSpan="10"  Grid.RowSpan="10" x:Name="showLoading" Width="250" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center"  Canvas.ZIndex="10000"/>
 			<Rectangle x:Name="backgroundTint" Visibility="Collapsed" Opacity=".5" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Fill="Black" Grid.ColumnSpan="10"  Grid.RowSpan="10" Canvas.ZIndex="999" ></Rectangle>
 			<Grid Background="#2f2f2f"   >
 				<StackPanel Orientation="Horizontal">
