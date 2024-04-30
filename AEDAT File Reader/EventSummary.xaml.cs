@@ -182,12 +182,13 @@ namespace AEDAT_File_Reader
 
 			// Create CSV file
 			StorageFile file = await folder.CreateFileAsync(fileName + ".csv", CreationCollisionOption.GenerateUniqueName);
-			await FileIO.WriteTextAsync(file, "On Count,Off Count, Combined Count\n");
+			await FileIO.WriteTextAsync(file, "On Count,Off Count,Both Count, Combined Count\n");
 
 			string fileConent = "";
 			int onCount = 0;
 			int offCount = 0;
-
+			int bothCount = 0;
+   
 			int bytesRead = aedatFile.Read(bytes, 0, bytes.Length);
 			// Read through AEDAT file
 			while (bytesRead != 0 && frameCount < maxFrames)
@@ -196,7 +197,7 @@ namespace AEDAT_File_Reader
 				{
                     AEDATEvent currentEvent = new AEDATEvent(bytes, i, cam);
 
-					_ = currentEvent.onOff ? onCount++ : offCount++;
+					_ = currentEvent.onOff ? onCount++ : offCount++ : bothCount++;
                     timeStamp = currentEvent.time;
 					if (lastTime == -999999)
 					{
@@ -208,7 +209,7 @@ namespace AEDAT_File_Reader
 						{
 							try
 							{
-								fileConent += onCount + "," + offCount + "," + (onCount+offCount) + "\n";
+								fileConent += onCount + "," + offCount + "," + bothCount + "," + (onCount+offCount+bothCount) + "\n";
 
 								// Write to file if buffer size is reached
 								if (fileConent.Length > writeBufferSize)
@@ -221,7 +222,8 @@ namespace AEDAT_File_Reader
 
 							onCount = 0;
 							offCount = 0;
-
+							bothCount = 0;
+       
 							frameCount++;
 							// Stop adding frames to video if max frames has been reached
 							if (frameCount >= maxFrames)
@@ -248,11 +250,12 @@ namespace AEDAT_File_Reader
 
 			// Create CSV file
 			StorageFile file = await folder.CreateFileAsync(fileName + ".csv", CreationCollisionOption.GenerateUniqueName);
-			await FileIO.WriteTextAsync(file, "On Count,Off Count, Duration\n");
+			await FileIO.WriteTextAsync(file, "On Count, Off Count, Both Count, Duration\n");
 
 			string fileConent = "";
 			int onCount = 0;
 			int offCount = 0;
+   			int bothCount = 0;
 
 			int bytesRead = aedatFile.Read(bytes, 0, bytes.Length);
 			// Read through AEDAT file
@@ -262,7 +265,7 @@ namespace AEDAT_File_Reader
 				{
                     AEDATEvent currentEvent = new AEDATEvent(bytes, i, cam);
 
-                    _ = currentEvent.onOff ? onCount++ : offCount++;
+                    _ = currentEvent.onOff ? onCount++ : offCount++: bothCount++;
                     timeStamp = currentEvent.time;
 					
 					if (lastTime == -999999)
@@ -271,11 +274,11 @@ namespace AEDAT_File_Reader
 					}
 					else
 					{
-						if (onCount+offCount >= eventsPerFrame) // Collected enough events, add frame to video
+						if (onCount+offCount+bothCount >= eventsPerFrame) // Collected enough events, add frame to video
 						{
 							try
 							{
-								fileConent += onCount + "," + offCount + "," + (timeStamp - lastTime) + "\n";
+								fileConent += onCount + "," + offCount + "," + bothCount + "," + (timeStamp - lastTime) + "\n";
 
 								// Write to file if buffer size is reached
 								if (fileConent.Length > writeBufferSize)
@@ -288,7 +291,8 @@ namespace AEDAT_File_Reader
 
 							onCount = 0;
 							offCount = 0;
-
+							bothCount = 0;
+       F
 							frameCount++;
 							// Stop adding frames to video if max frames has been reached
 							if (frameCount >= maxFrames)
@@ -302,7 +306,7 @@ namespace AEDAT_File_Reader
 				bytesRead = aedatFile.Read(bytes, 0, bytes.Length);
 			}
 			// Append any remaining data
-			await FileIO.AppendTextAsync(file, fileConent);
+			await FileIO.AppendTextAsync(file, fileCent);
 		}
 
 		private (int, int) ParseVideoSettings()
